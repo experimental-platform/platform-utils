@@ -55,6 +55,7 @@ func getInterfaceIndex(executor CmdExec, name string) (string, error) {
 			result := reg.Find(out)
 			if result == nil {
 				err = fmt.Errorf("getInterfaceIndex(): error parsing output of `ip link show %v`", name)
+				return "", err
 			} else {
 				return string(result), nil
 			}

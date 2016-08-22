@@ -1,9 +1,9 @@
 package netutil
 
 import (
+	"reflect"
 	"strings"
 	"testing"
-	"reflect"
 )
 
 type mocCommandExecutor struct {
@@ -68,7 +68,7 @@ LLMNR=yes
 		WILDCARD_DOMAIN: false,
 		LLMNR:           true,
 	}
-	if ! reflect.DeepEqual(result, expected) {
+	if !reflect.DeepEqual(result, expected) {
 		t.Errorf("Expected '%+v', got '%+v'.", expected, result)
 	}
 }
