@@ -9,19 +9,22 @@ import (
 	"strings"
 )
 
-type CmdExec interface {
+type cmdExec interface {
 	Command(name string, arg ...string) ([]byte, error)
 }
 
-type RealCmdExec struct{}
+type realCmdExec struct{}
 
-func (c RealCmdExec) Command(name string, arg ...string) ([]byte, error) {
+func (c realCmdExec) Command(name string, arg ...string) ([]byte, error) {
 	cmd := exec.Command(name, arg...)
 	out, err := cmd.CombinedOutput()
 	return out, err
 }
 
-func GetDefaultInterface(executor CmdExec) (string, error) {
+var executor cmdExec = realCmdExec{}
+
+// GetDefaultInterface returns the name of the default network interface
+func GetDefaultInterface() (string, error) {
 	// RADAR: Will only work when box has internet. Can we use network connected state instead?
 	// TODO: Broken when more than one interface present
 	out, err := executor.Command("ip", "route", "get", "8.8.8.8")
@@ -47,7 +50,7 @@ func GetDefaultInterface(executor CmdExec) (string, error) {
 	return split[1], nil
 }
 
-func getInterfaceIndex(executor CmdExec, name string) (string, error) {
+func getInterfaceIndex(name string) (string, error) {
 	out, err := executor.Command("ip", "link", "show", name)
 	if err == nil {
 		reg, err := regexp.Compile("^\\d+")
@@ -56,14 +59,14 @@ func getInterfaceIndex(executor CmdExec, name string) (string, error) {
 			if result == nil {
 				err = fmt.Errorf("getInterfaceIndex(): error parsing output of `ip link show %v`", name)
 				return "", err
-			} else {
-				return string(result), nil
 			}
+			return string(result), nil
 		}
 	}
 	return "", err
 }
 
+// InterfaceData contains all status data systemd/networkd has regarding an interface
 type InterfaceData struct {
 	ADMIN_STATE     string
 	OPER_STATE      string
@@ -119,10 +122,12 @@ func parseInterfaceState(data []byte) (InterfaceData, error) {
 	return *result, nil
 }
 
+// GetInterfaceStats collects information on a network interface
+// from linux netlink and systemd/networkd
 func GetInterfaceStats(name string) (InterfaceData, error) {
 	// RADAR: This will only work on current linux kernels with systemd
 	// RADAR: This is currently untested.
-	name, err := getInterfaceIndex(RealCmdExec{}, name)
+	name, err := getInterfaceIndex(name)
 	if err != nil {
 		return InterfaceData{}, err
 	}

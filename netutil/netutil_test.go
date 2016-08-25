@@ -18,13 +18,13 @@ func (c mocCommandExecutor) Command(name string, arg ...string) ([]byte, error) 
 }
 
 // make sure the moc satisfies the interface
-var _ CmdExec = (*mocCommandExecutor)(nil)
+var _ cmdExec = (*mocCommandExecutor)(nil)
 
 func TestGetDefaultInterface(t *testing.T) {
-	moc := mocCommandExecutor{data: []byte(
+	executor = mocCommandExecutor{data: []byte(
 		"8.8.8.8 via 172.16.0.1 dev eno1  src 172.16.10.239\n    cache",
 	)}
-	result, err := GetDefaultInterface(moc)
+	result, err := GetDefaultInterface()
 	if err != nil {
 		t.Errorf("Static mode failure: %v", err)
 	}
@@ -34,9 +34,9 @@ func TestGetDefaultInterface(t *testing.T) {
 }
 
 func TestGetInterfaceIndex(t *testing.T) {
-	moc := mocCommandExecutor{data: []byte(`4: eno1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
+	executor = mocCommandExecutor{data: []byte(`4: eno1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
 link/ether 54:be:f7:66:2c:49 brd ff:ff:ff:ff:ff:ff`)}
-	result, err := getInterfaceIndex(moc, "eno1")
+	result, err := getInterfaceIndex("eno1")
 	if err != nil {
 		t.Errorf("Static mode failure: %v", err)
 	}
@@ -45,7 +45,7 @@ link/ether 54:be:f7:66:2c:49 brd ff:ff:ff:ff:ff:ff`)}
 	}
 }
 
-func TestGetInterfaceStateUnconfigured(t *testing.T) {
+func TestGetInterfaceStateNotConfigured(t *testing.T) {
 	// /run/systemd/netif/links/3
 	data := []byte(`# This is private data. Do not parse.
 ADMIN_STATE=configuring
