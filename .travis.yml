@@ -3,7 +3,7 @@ services:
   - docker
 
 install:
-  - 'curl -L https://raw.githubusercontent.com/experimental-platform/misc/master/install-glide.sh | bash -s v0.11.1'
+  - 'curl -L https://raw.githubusercontent.com/experimental-platform/build-scripts/master/install-glide.sh | bash -s v0.11.1'
   - 'docker run -v "$HOME/bin/glide:/usr/bin/glide:ro" -v "/home/travis/build/experimental-platform/platform-utils/netutil:/go/src/netutil" -w "/go/src/netutil" -e GO15VENDOREXPERIMENT=1 golang:1.5 glide up'
 
 script:
