@@ -1,12 +1,12 @@
 package dockerutil
 
 import (
-	"github.com/docker/engine-api/types/filters"
 	"fmt"
+
 	"github.com/docker/engine-api/client"
 	"github.com/docker/engine-api/types"
+	"github.com/docker/engine-api/types/filters"
 	"golang.org/x/net/context"
-	"errors"
 )
 
 func GetContainerIP(name string) (string, error) {
