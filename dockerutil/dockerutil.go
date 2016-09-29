@@ -34,7 +34,10 @@ func GetContainerIP(name string) (string, error) {
 
 	protonetNetworkData, ok := data.NetworkSettings.Networks["protonet"]
 	if !ok {
-		return "", errors.New("The SKVS container doesn't belong to the network 'protonet'.")
+		protonetNetworkData, ok = data.NetworkSettings.Networks["docker"]
+		if !ok {
+			return "", fmt.Errorf("The container '%s' doesn't exist on the networks 'protonet' and 'docker'.", name)
+		}
 	}
 
 	return protonetNetworkData.IPAddress, nil
