@@ -27,6 +27,7 @@ var executor cmdExec = realCmdExec{}
 func GetDefaultInterface() (string, error) {
 	// RADAR: Will only work when box has internet. Can we use network connected state instead?
 	// TODO: Broken when more than one interface present
+
 	out, err := executor.Command("ip", "route", "get", "8.8.8.8")
 	if err != nil {
 		return "", err
@@ -53,6 +54,7 @@ func GetDefaultInterface() (string, error) {
 func getInterfaceIndex(name string) (string, error) {
 	out, err := executor.Command("ip", "link", "show", name)
 	if err == nil {
+
 		reg, err := regexp.Compile("^\\d+")
 		if err == nil {
 			result := reg.Find(out)
@@ -77,6 +79,10 @@ type InterfaceData struct {
 	WILDCARD_DOMAIN bool
 	LLMNR           bool
 	DHCP_LEASE      string
+	MDNS            bool
+	ADDRESSES       string
+	ROUTES          string
+	DHCP4_ADDRESS   string
 }
 
 func boolify(word string) bool {
@@ -114,8 +120,14 @@ func parseInterfaceState(data []byte) (InterfaceData, error) {
 				result.LLMNR = boolify(value)
 			case "DHCP_LEASE":
 				result.DHCP_LEASE = value
-			default:
-				return *result, errors.New("Parser error (2) on: " + line)
+			case "MDNS":
+				result.MDNS = boolify(value)
+			case "ADDRESSES":
+				result.ADDRESSES = value
+			case "ROUTES":
+				result.ROUTES = value
+			case "DHCP4_ADDRESS":
+				result.DHCP4_ADDRESS = value
 			}
 		}
 	}
