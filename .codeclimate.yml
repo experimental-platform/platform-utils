@@ -3,6 +3,8 @@ engines:
     enabled: true
   gofmt:
     enabled: true
+  fixme:
+    enabled: true
   golint:
     enabled: true
 #    config:
@@ -10,3 +12,5 @@ engines:
 ratings:
   paths:
     - "**.go"
+exclude_paths:
+  config/
